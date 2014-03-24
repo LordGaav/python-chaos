@@ -1,0 +1,6 @@
+Package: python-chaos
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}
+Description: Assorted libraries and subroutines
+ .
+ A set of libraries and subroutines I commonly use in my python projects.

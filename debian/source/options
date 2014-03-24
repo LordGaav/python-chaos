@@ -1,0 +1,5 @@
+tar-ignore = "control.*"
+tar-ignore = "multi-release.sh"
+tar-ignore = ".git"
+tar-ignore = ".git*"
+tar-ignore = "Makefile"
