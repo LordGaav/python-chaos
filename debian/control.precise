@@ -1,6 +1,6 @@
 Package: python-chaos
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}
+Depends: ${misc:Depends}, ${python:Depends}, python-configobj
 Description: Assorted libraries and subroutines
  .
  A set of libraries and subroutines I commonly use in my python projects.
