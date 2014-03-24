@@ -21,7 +21,7 @@ import threading, datetime, time, logging
 
 class Scheduler(threading.Thread):
 	def __init__(self, delay, action, name, startNow=False, *args, **kwargs):
-		self.logger = logging.getLogger("{0}.{1}".format(__name__, name))
+		self.logger = logging.getLogger(name)
 		super(Scheduler, self).__init__(None, None, name, None, None)
 
 		self.delay = delay
