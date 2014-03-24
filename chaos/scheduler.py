@@ -16,6 +16,7 @@
 # License along with this library. If not, see 
 # <http://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import
 import threading, datetime, time, logging
 
 class Scheduler(threading.Thread):
