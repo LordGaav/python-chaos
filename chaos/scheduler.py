@@ -20,7 +20,32 @@ from __future__ import absolute_import
 import threading, datetime, time, logging
 
 class Scheduler(threading.Thread):
+	"""
+	A single thread that is automatically called with a specific interval.
+
+	To stop a thread that is in its main loop, set stop to True.
+	"""
 	def __init__(self, delay, action, name, startNow=False, *args, **kwargs):
+		"""
+		Initialize a new Scheduler thread.
+
+		Parameters
+		----------
+		delay: int
+			The delay between consequtive runs of this thread, in seconds.
+		action: function pointer
+			The function to call.
+		name: string
+			Descriptive name of this thread.
+		startNow: boolean
+			When True, this thread will start immediately when run() is called.
+			When False, this thread will start now+interval seconds when run() is called.
+		*args
+			Positional arguments to pass to action.
+		**kwargs:
+			Keyword arguments to pass to action.
+		"""
+
 		self.logger = logging.getLogger(name)
 		super(Scheduler, self).__init__(None, None, name, None, None)
 
@@ -43,16 +68,47 @@ class Scheduler(threading.Thread):
 			self.logger.debug("Thread {0} will start in {1} seconds".format(name, wait))
 	
 	def setStartAction(self, action, *args, **kwargs):
+		"""
+		Set a function to call when run() is called, before the main action is called.
+
+		Parameters
+		----------
+		action: function pointer
+			The function to call.
+		*args
+			Positional arguments to pass to action.
+		**kwargs:
+			Keyword arguments to pass to action.
+		"""
+
 		self.init_action = action
 		self.init_args = args
 		self.init_kwargs = kwargs
 	
 	def setStopAction(self, action, *args, **kwargs):
+		"""
+		Set a function to call when run() is stopping, after the main action is called.
+
+		Parameters
+		----------
+		action: function pointer
+			The function to call.
+		*args
+			Positional arguments to pass to action.
+		**kwargs:
+			Keyword arguments to pass to action.
+		"""
 		self.stop_action = action
 		self.stop_args = args
 		self.stop_kwargs = kwargs
 
 	def run(self):
+		"""
+		Calls the defined action every $interval seconds. Optionally calls an action before
+		the main loop, and an action when stopping, if these are defined.
+
+		Exceptions in the main loop will NOT cause the thread to die.
+		"""
 		self.logger.debug("Thread {0} is entering main loop".format(self.name))
 
 		if hasattr(self, "init_action"):

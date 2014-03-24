@@ -25,7 +25,19 @@ class Globber(object):
 	"""
 
 	def __init__(self, path, filter=['*'], recursive=True):
-		""" Initialize Globber parameters. Filter may be a list of globbing patterns. """
+		"""
+		Initialize Globber parameters. Filter may be a list of globbing patterns.
+
+		Parameters
+		----------
+		path: string
+			Absolute path to the directory to glob
+		filter: list of strings
+			List of globbing pattern strings. By default, ALL files in the given path
+			are globbed.
+		recursive: boolean
+			When True: will traverse subdirectories found in $path. Defaults to True.
+		"""
 		self.path = path
 		self.filter = filter
 		self.recursive = recursive
