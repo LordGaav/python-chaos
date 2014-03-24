@@ -37,7 +37,7 @@ class Threads(object):
 		self.logger.debug("Registered thread {0}".format(name))
 
 		return thread
-	
+
 	def getThreads(self):
 		return self.thread_list.keys()
 
@@ -55,3 +55,29 @@ class Threads(object):
 
 		del self.thread_list[name]
 		self.logger.debug("Unregistered thread {0}".format(name))
+
+	def startAll(self):
+		self.logger.info("Starting all threads..."))
+
+		for thread in self.getThreads():
+			t = self.getThread(thread)
+			getLogger(__name__).debug("Starting {0}".format(t.name))
+			t.start()
+
+		self.logger.info("Started all threads")
+
+	def stopAll(self, exit=False):
+		self.logger.info("Stopping all threads...")
+
+		for thread in self.getThreads():
+			t = self.getThread(thread)
+			getLogger(__name__).info("Stopping {0}".format(t.name))
+			t.stop = True
+			t.join()
+			self.unregisterThread(thread)
+
+		self.logger.info("Stopped all threads")
+
+		if exit:
+			self.logger.fatal("Comitting suicide")
+			os._exit(0)
