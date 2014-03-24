@@ -16,7 +16,7 @@
 # License along with this library. If not, see 
 # <http://www.gnu.org/licenses/>.
 
-import threading, logging
+import threading, logging, os
 
 class Threads(object):
 	thread_list = {}
@@ -57,11 +57,11 @@ class Threads(object):
 		self.logger.debug("Unregistered thread {0}".format(name))
 
 	def startAll(self):
-		self.logger.info("Starting all threads..."))
+		self.logger.info("Starting all threads...")
 
 		for thread in self.getThreads():
 			t = self.getThread(thread)
-			getLogger(__name__).debug("Starting {0}".format(t.name))
+			self.logger.debug("Starting {0}".format(t.name))
 			t.start()
 
 		self.logger.info("Started all threads")
@@ -71,7 +71,7 @@ class Threads(object):
 
 		for thread in self.getThreads():
 			t = self.getThread(thread)
-			getLogger(__name__).info("Stopping {0}".format(t.name))
+			self.logger.info("Stopping {0}".format(t.name))
 			t.stop = True
 			t.join()
 			self.unregisterThread(thread)
