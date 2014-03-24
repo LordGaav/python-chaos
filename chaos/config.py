@@ -19,8 +19,9 @@
 from __future__ import absolute_import
 import threading, logging, os, inspect
 from configobj import ConfigObj
+from .globber import Globber
 
-def get_config(config_base, custom_file=None, debug_log=False, console=True):
+def get_config(config_base, custom_file=None):
 	logger = logging.getLogger(__name__)
 
 	logger.debug("Expanding variables")
@@ -53,5 +54,21 @@ def get_config(config_base, custom_file=None, debug_log=False, console=True):
 		logger.debug("Loading custom config file")
 		cfg = ConfigObj(custom_file)
 		config.merge(cfg)
+
+	return config
+
+def get_config_dir(path, pattern="*.config"):
+	logger = logging.getLogger(__name__)
+
+	logger.debug("Loading all files matching {0} in {1}".format(pattern, path))
+	files = Globber(path, filter=[pattern], recursive=False).glob()
+	files = sorted(files)
+
+	config = ConfigObj()
+
+	for f in files:
+		logger.debug("- Loading config for {0}".format(f))
+		c = ConfigObj(f)
+		config.merge(c)
 
 	return config
