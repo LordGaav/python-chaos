@@ -1,7 +1,7 @@
 python-chaos
 ------------
 
-A set of libaries and subroutines I commonly use in my python projects.
+A set of libraries and subroutines I commonly use in my python projects.
 
 Dependencies
 ============
