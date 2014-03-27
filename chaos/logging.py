@@ -28,6 +28,9 @@ def get_logger(name=None, level=logging.INFO, handlers=[]):
 	Create a Python logging Logger for the given name. A special case is
 	when the name is None, as this will represent the root Logger object.
 
+	When handlers are specified, the currently configured handlers are removed,
+	and the specified handlers are set.
+
 	Parameters
 	----------
 	name: string
@@ -49,6 +52,7 @@ def get_logger(name=None, level=logging.INFO, handlers=[]):
 		name = "root"
 
 	if len(handlers) != 0:
+		logger.handlers = []
 		logger.setLevel(level)
 
 	if "console" in handlers:
