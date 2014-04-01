@@ -23,7 +23,7 @@ Helper functions for working with the Python built-in logging module.
 from __future__ import absolute_import
 import logging, logging.handlers, os
 
-def get_logger(name=None, level=logging.INFO, handlers=[]):
+def get_logger(name=None, level=logging.NOTSET, handlers=[]):
 	"""
 	Create a Python logging Logger for the given name. A special case is
 	when the name is None, as this will represent the root Logger object.
@@ -51,9 +51,10 @@ def get_logger(name=None, level=logging.INFO, handlers=[]):
 	if name is None:
 		name = "root"
 
+	logger.setLevel(level)
+
 	if len(handlers) != 0:
 		logger.handlers = []
-		logger.setLevel(level)
 
 	if "console" in handlers:
 		strm = logging.StreamHandler()
