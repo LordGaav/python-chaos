@@ -24,7 +24,7 @@ from __future__ import absolute_import
 import logging
 from argparse import ArgumentParser
 
-def get_config_argparse(suppress=[]):
+def get_config_argparse(suppress=None):
 	"""
 	Create an ArgumentParser which listens for the following common options:
 	- --config
@@ -45,6 +45,9 @@ def get_config_argparse(suppress=[]):
 		In both cases, -h/--help is not actually suppressed, only the behaviour of the ArgumentParser
 		when encountering the option.
 	"""
+
+	if suppress is None:
+		suppress = []
 
 	config_parser = ArgumentParser(description="Looking for config", add_help=(not "help" in suppress))
 	if not "config" in suppress:

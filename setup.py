@@ -20,13 +20,13 @@
 from os.path import join, dirname
 from distutils.core import setup
 
-NAME="chaos"
-VERSION="0.1"
-DESCRIPTION="Assorted libraries and subroutines"
+NAME = "chaos"
+VERSION = "0.1"
+DESCRIPTION = "Assorted libraries and subroutines"
 
-f = open(join(dirname(__file__), 'README.md'))
-long_description = f.read().strip()
-f.close()
+readme = open(join(dirname(__file__), 'README.md'))
+long_description = readme.read().strip()
+readme.close()
 
 setup(
 	name=NAME,

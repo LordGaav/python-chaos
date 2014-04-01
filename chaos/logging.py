@@ -23,7 +23,7 @@ Helper functions for working with the Python built-in logging module.
 from __future__ import absolute_import
 import logging, logging.handlers, os
 
-def get_logger(name=None, level=logging.NOTSET, handlers=[]):
+def get_logger(name=None, level=logging.NOTSET, handlers=None):
 	"""
 	Create a Python logging Logger for the given name. A special case is
 	when the name is None, as this will represent the root Logger object.
@@ -50,6 +50,8 @@ def get_logger(name=None, level=logging.NOTSET, handlers=[]):
 
 	if name is None:
 		name = "root"
+	if handlers is None:
+		handlers = []
 
 	logger.setLevel(level)
 
@@ -65,12 +67,12 @@ def get_logger(name=None, level=logging.NOTSET, handlers=[]):
 
 	if "file" in handlers:
 		conf = handlers['file']
-		fl = logging.handlers.WatchedFileHandler(conf['logfile'])
-		fl.setLevel(level)
+		fil = logging.handlers.WatchedFileHandler(conf['logfile'])
+		fil.setLevel(level)
 
 		fmt = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-		fl.setFormatter(fmt)
-		logger.addHandler(fl)
+		fil.setFormatter(fmt)
+		logger.addHandler(fil)
 
 	if "syslog" in handlers:
 		sysl = logging.handlers.SysLogHandler(address='/dev/log', facility=logging.handlers.SysLogHandler.LOG_SYSLOG)

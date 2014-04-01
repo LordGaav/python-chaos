@@ -16,6 +16,8 @@
 # License along with this library. If not, see 
 # <http://www.gnu.org/licenses/>.
 
+""" Helper functions for file and directory globbing. """
+
 from __future__ import absolute_import
 import os, fnmatch
 
@@ -24,7 +26,7 @@ class Globber(object):
 	Traverses a directory and returns all absolute filenames.
 	"""
 
-	def __init__(self, path, filter=['*'], recursive=True):
+	def __init__(self, path, include=None, recursive=True):
 		"""
 		Initialize Globber parameters. Filter may be a list of globbing patterns.
 
@@ -32,14 +34,16 @@ class Globber(object):
 		----------
 		path: string
 			Absolute path to the directory to glob
-		filter: list of strings
+		include: list of strings
 			List of globbing pattern strings. By default, ALL files in the given path
 			are globbed.
 		recursive: boolean
 			When True: will traverse subdirectories found in $path. Defaults to True.
 		"""
+		if include is None:
+			include = ['*']
 		self.path = path
-		self.filter = filter
+		self.include = include
 		self.recursive = recursive
 	
 	def glob(self):
@@ -52,7 +56,7 @@ class Globber(object):
 			if not self.recursive:
 				while len(dirnames) > 0:
 					dirnames.pop()
-			for filter in self.filter:
-				for filename in fnmatch.filter(filenames, filter):
+			for include in self.include:
+				for filename in fnmatch.filter(filenames, include):
 					matches.append(os.path.join(root, filename))
 		return matches

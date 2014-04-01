@@ -16,6 +16,8 @@
 # License along with this library. If not, see 
 # <http://www.gnu.org/licenses/>.
 
+""" Helper functions for working with python multithreading. """
+
 from __future__ import absolute_import
 import threading, logging, os
 
@@ -104,13 +106,13 @@ class Threads(object):
 		self.logger.info("Starting all threads...")
 
 		for thread in self.getThreads():
-			t = self.getThread(thread)
-			self.logger.debug("Starting {0}".format(t.name))
-			t.start()
+			thr = self.getThread(thread)
+			self.logger.debug("Starting {0}".format(thr.name))
+			thr.start()
 
 		self.logger.info("Started all threads")
 
-	def stopAll(self, exit=False):
+	def stopAll(self, stop=False):
 		"""
 		Stop all registered Threads. This is method assumes that the Thread is using
 		and internal variable called stop to control its main loop. Stopping a Thread
@@ -128,14 +130,14 @@ class Threads(object):
 		self.logger.info("Stopping all threads...")
 
 		for thread in self.getThreads():
-			t = self.getThread(thread)
-			self.logger.info("Stopping {0}".format(t.name))
-			t.stop = True
-			t.join()
+			thr = self.getThread(thread)
+			self.logger.info("Stopping {0}".format(thr.name))
+			thr.stop = True
+			thr.join()
 			self.unregisterThread(thread)
 
 		self.logger.info("Stopped all threads")
 
-		if exit:
+		if stop:
 			self.logger.fatal("Comitting suicide")
 			os._exit(0)

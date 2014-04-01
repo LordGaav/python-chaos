@@ -16,6 +16,8 @@
 # License along with this library. If not, see 
 # <http://www.gnu.org/licenses/>.
 
+""" Helper functions for making Threads execute periodically. """
+
 from __future__ import absolute_import
 import threading, datetime, time, logging
 

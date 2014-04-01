@@ -24,7 +24,7 @@ these functions explicitely do not catch them.
 """
 
 from __future__ import absolute_import
-import threading, logging, os, inspect
+import logging, os, inspect
 from configobj import ConfigObj
 from .globber import Globber
 
@@ -105,14 +105,14 @@ def get_config_dir(path, pattern="*.config"):
 	logger = logging.getLogger(__name__)
 
 	logger.debug("Loading all files matching {0} in {1}".format(pattern, path))
-	files = Globber(path, filter=[pattern], recursive=False).glob()
+	files = Globber(path, include=[pattern], recursive=False).glob()
 	files = sorted(files)
 
 	config = ConfigObj()
 
-	for f in files:
-		logger.debug("- Loading config for {0}".format(f))
-		c = ConfigObj(f)
-		config.merge(c)
+	for filename in files:
+		logger.debug("- Loading config for {0}".format(filename))
+		conf = ConfigObj(filename)
+		config.merge(conf)
 
 	return config
