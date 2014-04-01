@@ -110,28 +110,27 @@ class Workers(object):
 
 		self.logger.info("Started all workers")
 
-	def stopAll(self, exit=False):
+	def stopAll(self, timeout=10, exit=False):
 		"""
-		Stop all registered Workers. This is method assumes that the Worker is using
-		and internal variable called stop to control its main loop. Stopping a Worker
-		is achieved as follows:
+		Stop all registered Workers. This is method assumes that the Worker has already
+		received a stop message somehow, and simply joins the Process until it dies, as 
+		follows:
 
 		1. The Worker is retrieved.
-		2. $worker.stop is set to False.
-		3. The Worker is joined, and will wait until the Worker exits.
-		4. The Worker is unregistered.
-		5. If $exit = True, the main process is killed.
-
-		Ensure that any registered Worker responds to having its stop property set to False,
-		else calling stopAll() will result in a hung process.
+		2. The Worker is joined, and will wait until the Worker exits.
+		3. The Worker is unregistered.
+		4. If $exit = True, the main process is killed.
 		"""
 		self.logger.info("Stopping all workers...")
 
 		for worker in self.getWorkers():
 			t = self.getWorker(worker)
 			self.logger.info("Stopping {0}".format(t.name))
-			t.stop = True
-			t.join()
+			if t.is_alive():
+				t.join(timeout)
+				if t.is_alive():
+					self.logger.warning("Failed to stop {0}, terminating".format(t.name))
+					t.terminate()
 			self.unregisterWorker(worker)
 
 		self.logger.info("Stopped all workers")
