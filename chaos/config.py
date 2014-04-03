@@ -26,9 +26,10 @@ these functions explicitely do not catch them.
 from __future__ import absolute_import
 import logging, os, inspect
 from configobj import ConfigObj
+from validate import Validator
 from .globber import Globber
 
-def get_config(config_base, custom_file=None):
+def get_config(config_base, custom_file=None, configspec=None):
 	"""
 	Loads a configuration file from multiple locations, and merge the results into one.
 
@@ -48,6 +49,9 @@ def get_config(config_base, custom_file=None):
 		Basename of the configuration file, typically the same as the name of the program.
 	custom_file: string
 		Absolute path to a custom configuration file.
+	configspec: ConfigObj
+		Used to sanitize the values in the resulting ConfigObj. Validation errors are currently
+		not exposed to the caller.
 	"""
 
 	logger = logging.getLogger(__name__)
@@ -62,30 +66,38 @@ def get_config(config_base, custom_file=None):
 	# Merge in config file in program dir
 	if os.path.isfile(os.path.join(loc, "%s.config" % config_base)):
 		logger.debug("Loading config from workingdir")
-		cfg = ConfigObj(os.path.join(loc, "%s.config" % config_base))
+		cfg = ConfigObj(os.path.join(loc, "%s.config" % config_base), configspec=configspec)
+		if configspec:
+			cfg.validate(Validator())
 		config.merge(cfg)
 
 	# Merge in system-wide config (Unix specific)
 	if os.path.isfile("/etc/%s.config" % config_base):
 		logger.debug("Loading config from /etc")
-		cfg = ConfigObj("/etc/%s.config" % config_base)
+		cfg = ConfigObj("/etc/%s.config" % config_base, configspec=configspec)
+		if configspec:
+			cfg.validate(Validator())
 		config.merge(cfg)
 
 	# Merge in user specific config
 	if os.path.isfile(os.path.join(home, ".%s.config" % config_base)):
 		logger.debug("Loading config from homedir")
-		cfg = ConfigObj(os.path.join(home, ".%s.config" % config_base))
+		cfg = ConfigObj(os.path.join(home, ".%s.config" % config_base), configspec=configspec)
+		if configspec:
+			cfg.validate(Validator())
 		config.merge(cfg)
 
 	# Config file provided on command line has preference
 	if custom_file:
 		logger.debug("Loading custom config file")
-		cfg = ConfigObj(custom_file)
+		cfg = ConfigObj(custom_file, configspec=configspec)
+		if configspec:
+			cfg.validate(Validator())
 		config.merge(cfg)
 
 	return config
 
-def get_config_dir(path, pattern="*.config"):
+def get_config_dir(path, pattern="*.config", configspec=None):
 	"""
 	Load an entire directory of configuration files, merging them into one.
 
@@ -100,6 +112,9 @@ def get_config_dir(path, pattern="*.config"):
 		Absolute path to a directory of ConfigObj files
 	pattern: string
 		Globbing pattern used to find files. Defaults to *.config.
+	configspec: ConfigObj
+		Used to sanitize the values in the resulting ConfigObj. Validation errors are currently
+		not exposed to the caller.
 	"""
 
 	logger = logging.getLogger(__name__)
@@ -112,7 +127,9 @@ def get_config_dir(path, pattern="*.config"):
 
 	for filename in files:
 		logger.debug("- Loading config for {0}".format(filename))
-		conf = ConfigObj(filename)
+		conf = ConfigObj(filename, configspec=configspec)
+		if configspec:
+			conf.validate(Validator())
 		config.merge(conf)
 
 	return config
