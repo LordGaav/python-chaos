@@ -25,7 +25,7 @@ these functions explicitely do not catch them.
 
 from __future__ import absolute_import
 import logging, os, inspect
-from configobj import ConfigObj
+from configobj import ConfigObj, ConfigObjError
 from validate import Validator
 from .globber import Globber
 
@@ -97,7 +97,7 @@ def get_config(config_base, custom_file=None, configspec=None):
 
 	return config
 
-def get_config_dir(path, pattern="*.config", configspec=None):
+def get_config_dir(path, pattern="*.config", configspec=None, allow_errors=False):
 	"""
 	Load an entire directory of configuration files, merging them into one.
 
@@ -115,6 +115,9 @@ def get_config_dir(path, pattern="*.config", configspec=None):
 	configspec: ConfigObj
 		Used to sanitize the values in the resulting ConfigObj. Validation errors are currently
 		not exposed to the caller.
+	allow_errors: boolean
+		If False, errors raised by ConfigObj are not caught.
+		If True, errors raise by ConfigObj are caught, and an error is logged using logger.
 	"""
 
 	logger = logging.getLogger(__name__)
@@ -127,7 +130,11 @@ def get_config_dir(path, pattern="*.config", configspec=None):
 
 	for filename in files:
 		logger.debug("- Loading config for {0}".format(filename))
-		conf = ConfigObj(filename, configspec=configspec)
+		try:
+			conf = ConfigObj(filename, configspec=configspec)
+		except ConfigObjError, coe:
+			logger.error("An error occurred while parsing {0}: {1}".format(filename, str(coe)))
+			continue
 		if configspec:
 			conf.validate(Validator())
 		config.merge(conf)
