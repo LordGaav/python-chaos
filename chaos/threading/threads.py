@@ -131,7 +131,7 @@ class Threads(object):
 
 		for thread in self.getThreads():
 			thr = self.getThread(thread)
-			self.logger.info("Stopping {0}".format(thr.name))
+			self.logger.debug("Stopping {0}".format(thr.name))
 			thr.stop = True
 			thr.join()
 			self.unregisterThread(thread)

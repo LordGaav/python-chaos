@@ -127,7 +127,7 @@ class Workers(object):
 
 		for worker in self.getWorkers():
 			process = self.getWorker(worker)
-			self.logger.info("Stopping {0}".format(process.name))
+			self.logger.debug("Stopping {0}".format(process.name))
 			if process.is_alive():
 				process.join(timeout)
 				if process.is_alive():
