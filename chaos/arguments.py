@@ -78,3 +78,38 @@ def get_config_arguments():
 	logger.debug("Parsing configuration arguments")
 
 	return get_config_argparse(suppress=["help"]).parse_known_args()
+
+def get_default_config_file(argparser, suppress=None, default_override=None):
+	"""
+	Turn an ArgumentParser into a ConfigObj compatible configuration file.
+
+	This method will take the given argparser, and loop over all options contained. The configuration file is formatted
+	as follows:
+
+	# <option help info>
+	<option destination variable>=<option default value>
+
+	Arguments
+	---------
+	argparser: ArgumentParser
+	suppress: list of strings
+		All options specified will be suppressed from the config file. Useful to avoid adding stuff like version or help.
+	default_override: dict
+		This method will use the defaults from the given ArgumentParser, unless the option is specified here. If specified,
+		the default from this dict will be used instead. The format is { "option": <new default value>, ... } .
+	"""
+	if not suppress:
+		suppress = []
+	if not default_override:
+		default_override = {}
+
+	lines = []
+	for arg in argparser._actions:
+		if arg.dest in suppress:
+			continue
+		default = arg.default
+		if arg.dest in default_override.keys():
+			default = default_override[arg.dest]
+		lines.append("# {0}\n{1}={2}\n".format(arg.help, arg.dest, default))
+
+	return "".join(lines)
