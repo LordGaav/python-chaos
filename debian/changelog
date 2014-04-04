@@ -2,4 +2,32 @@ chaos (0.1) RELEASE; urgency=low
 
   * Initial release
 
- -- Nick Douma <n.douma@nekoconeko.nl>  Mon, 24 Mar 2014 12:09:50 +0100
+  * Add Scheduler and Threads classes
+  * Fix spelling mistake
+  * Extend Threads with startAll and stopAll
+  * Add debian control files
+  * Fix syntax errors and calling problems
+  * Add Package __init__.py
+  * Fix changelog and setup.py mode
+  * Add logging functions
+  * Do not expose own __name__ through logger
+  * Add get_config
+  * Add python-configobj to dependencies
+  * Add file Globber
+  * Add get_config_dir
+  * Document ALL the things
+  * Reset handlers when new ones are specified.
+  * Add arguments.py
+  * Make suppressing get_config_argparse options more finegrained.
+  * Always set logging level
+  * Move Thread related stuff to separate sub package
+  * Add Multiprocessing helpers
+  * Rework logic for stopAll in Workers
+  * Pylint ALL the things, and implement feedback where appropriate.
+  * Add get_default_config_file
+  * Allow for specification of configspec to sanitize input
+  * Drop stopping messages to DEBUG level
+  * Allow ignoring ConfigObj errors in get_config_dir
+  * Add python-configobj dependency to README
+
+ -- Nick Douma <n.douma@nekoconeko.nl>  Fri, 04 Apr 2014 16:25:50 +0200
