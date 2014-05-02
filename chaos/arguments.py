@@ -104,12 +104,16 @@ def get_default_config_file(argparser, suppress=None, default_override=None):
 		default_override = {}
 
 	lines = []
+	seen_arguments = []
 	for arg in argparser._actions:
 		if arg.dest in suppress:
+			continue
+		if arg.dest in seen_arguments:
 			continue
 		default = arg.default
 		if arg.dest in default_override.keys():
 			default = default_override[arg.dest]
 		lines.append("# {0}\n{1}={2}\n".format(arg.help, arg.dest, default))
+		seen_arguments.append(arg.dest)
 
 	return "".join(lines)
