@@ -17,7 +17,7 @@
 # <http://www.gnu.org/licenses/>.
 
 import shlex, os
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, STDOUT
 
 def call_system(command):
 	"""
@@ -28,9 +28,9 @@ def call_system(command):
 
 	return os.system(command)
 
-def call_simple_cli(command, cwd=None, universal_newlines=False):
+def call_simple_cli(command, cwd=None, universal_newlines=False, redirect_stderr=False):
 	""" Simple wrapper around SimpleCliTool. Simple. """
-	return SimpleCliTool._call_cli(command, cwd, universal_newlines)
+	return SimpleCliTool._call_cli(command, cwd, universal_newlines, redirect_stderr)
 
 class SimpleCliTool(object):
 	envvars = {}
@@ -55,7 +55,7 @@ class SimpleCliTool(object):
 		"""
 		return self.envvars
 
-	def _call_cli(self, command, cwd=None, universal_newlines=False):
+	def _call_cli(self, command, cwd=None, universal_newlines=False, redirect_stderr=False):
 		"""
 		Executes the given command, internally using Popen. The output of
 		stdout and stderr are returned as a tuple. The returned tuple looks
@@ -69,11 +69,14 @@ class SimpleCliTool(object):
 			Change the working directory of the program to the specified path.
 		universal_newlines: boolean
 			Enable the universal_newlines feature of Popen.
+		redirect_stderr: boolean
+			If True, redirect stderr into stdout
 		"""
 		command = str(command.encode("utf-8").decode("ascii", "ignore"))
 		env = os.environ.copy()
 		env.update(self.envvars)
-		proc = Popen(shlex.split(command), stdout=PIPE, stderr=PIPE, cwd=cwd, universal_newlines=universal_newlines, env=env)
+		stderr = STDOUT if redirect_stderr else PIPE
+		proc = Popen(shlex.split(command), stdout=PIPE, stderr=stderr, cwd=cwd, universal_newlines=universal_newlines, env=env)
 		stdout, stderr = proc.communicate()
 
 		return (stdout, stderr, proc.returncode)
