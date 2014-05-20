@@ -33,6 +33,28 @@ def call_simple_cli(command, cwd=None, universal_newlines=False):
 	return SimpleCliTool._call_cli(command, cwd, universal_newlines)
 
 class SimpleCliTool(object):
+	envvars = {}
+
+	def add_env(self, var, value):
+		"""
+		Store a custom environment value internally. This value is used on every
+		call to _call_cli.
+		"""
+		self.envvars[var] = value
+
+	def del_env(self, var):
+		"""
+		Delete a custom environment value. This will raise an exception if the
+		variable does not exist.
+		"""
+		del(envvars[var])
+
+	def get_env(self):
+		"""
+		Return the internally stored dict of environment variables.
+		"""
+		return self.envvars
+
 	def _call_cli(self, command, cwd=None, universal_newlines=False):
 		"""
 		Executes the given command, internally using Popen. The output of
@@ -49,7 +71,9 @@ class SimpleCliTool(object):
 			Enable the universal_newlines feature of Popen.
 		"""
 		command = str(command.encode("utf-8").decode("ascii", "ignore"))
-		proc = Popen(shlex.split(command), stdout=PIPE, stderr=PIPE, cwd=cwd, universal_newlines=universal_newlines)
+		env = os.environ.copy()
+		env.update(self.envvars)
+		proc = Popen(shlex.split(command), stdout=PIPE, stderr=PIPE, cwd=cwd, universal_newlines=universal_newlines, env=env)
 		stdout, stderr = proc.communicate()
 
 		return (stdout, stderr, proc.returncode)
