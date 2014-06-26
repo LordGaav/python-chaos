@@ -30,7 +30,7 @@ def call_system(command):
 
 def call_simple_cli(command, cwd=None, universal_newlines=False, redirect_stderr=False):
 	""" Simple wrapper around SimpleCliTool. Simple. """
-	return SimpleCliTool._call_cli(command, cwd, universal_newlines, redirect_stderr)
+	return SimpleCliTool()._call_cli(command, cwd, universal_newlines, redirect_stderr)
 
 class SimpleCliTool(object):
 	envvars = {}
