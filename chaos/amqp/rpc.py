@@ -67,23 +67,20 @@ class Rpc(Queue):
 		"""
 		self.logger = logging.getLogger(__name__)
 
-		self.identifier = identifier
-		self.rpc_queue_name = self.identifier
+		self.rpc_queue_name = identifier
+		if not self.rpc_queue_name:
+			self.rpc_queue_name = "rpc.{0}".format(int(time.time()))
 
 		rpc_queue = {
 			"queue": self.rpc_queue_name,
-			"passive": False
+			"passive": False,
 			"durable": False,
 			"auto_delete": auto_delete
 		}
-
-		binds = None
 		if exchange:
-			binds = [
-				{ "queue": self.identifier, "exchange": exchange, "routing_key": self.identifier }
-			]
+			binds.append({ "queue": self.rpc_queue_name, "exchange": exchange, "routing_key": self.rpc_queue_name })
 
-		super(Rpc, self).__init__(host, credentials, rpc_queue, binds, exclusive=True, prefetch_count=1)
+		super(Rpc, self).__init__(host, credentials, rpc_queue, None, prefetch_count=1)
 
 		if queue:
 			self.queue_name = queue['queue']
@@ -125,10 +122,10 @@ class Rpc(Queue):
 		exclusive: boolean
 			Is this consumer supposed to be the exclusive consumer of the given queue?
 		"""
-		if not self.queue_name and consumer_callback:
+		if not hasattr(self, "queue_name") and consumer_callback:
 			raise ValueError("Trying to set a callback, while no general purpose queue was declared.")
 
-		self.rpc_consumer_tag = self.channel.basic_consume(consumer_callback=self._rpc_response_callback, queue=self.rpc_queue_name, exclusive=True)
+		self.rpc_consumer_tag = self.channel.basic_consume(consumer_callback=self._rpc_response_callback, queue=self.rpc_queue_name, exclusive=False)
 
 		if consumer_callback:
 			super(Rpc, self).consume(consumer_callback, exclusive, True)
@@ -170,7 +167,7 @@ class Rpc(Queue):
 
 		"""
 		if not correlation_id:
-			correlation_id = "{0}_{1}".format(self.correlation_id, int(time.time()))
+			correlation_id = "{0}_{1}".format(self.rpc_queue_name, int(time.time()))
 
 		uniq = 1
 		uniq_correlation_id = correlation_id
@@ -180,6 +177,12 @@ class Rpc(Queue):
 
 		self.responses[uniq_correlation_id] = None
 		return uniq_correlation_id
+
+	def retrieve_available_responses(self):
+		"""
+		Retrieve a list of all available responses. Will return a list of correlation_ids.
+		"""
+		return [ k for (k,v) in self.responses.iteritems() if v ]
 
 	def retrieve_response(self, correlation_id):
 		"""
@@ -244,6 +247,12 @@ class Rpc(Queue):
 
 		self.publish(exchange, routing_key, message, properties)
 
+		self.channel.force_data_events(True)
+		while properties['correlation_id'] not in self.retrieve_available_responses():
+			self.connection.process_data_events()
+
+		return self.retrieve_response(properties['correlation_id'])
+
 	def publish(self, exchange, routing_key, message, properties=None):
 		"""
 		Publish a message to an AMQP exchange.
@@ -262,7 +271,7 @@ class Rpc(Queue):
 				delivery_mode: int - what delivery_mode to use. By default message are not persistent, but this can be
 					set by specifying PERSISTENT_MESSAGE .
 		"""
-		publish_message(self.channel, self.exchange_name, self.default_routing_key, properties)
+		publish_message(self.channel, exchange, routing_key, message, properties)
 
 	def reply(self, original_headers, message, properties=None):
 		"""
@@ -280,8 +289,28 @@ class Rpc(Queue):
 				delivery_mode: int - what delivery_mode to use. By default message are not persistent, but this can be
 					set by specifying PERSISTENT_MESSAGE .
 		"""
-		if not properties:
-			properties = {}
-		properties['correlation_id'] = original_headers['correlation_id']
+		rpc_reply(self.channel, original_headers, message, properties)
 
-		publish_message(self.channel, "", original_headers['reply_to'], properties)
+def rpc_reply(channel, original_headers, message, properties=None):
+	"""
+	Reply to a RPC request. This function will use the default exchange, to directly contact the reply_to queue.
+
+	Parameters
+	----------
+	channel: object
+		Properly initialized AMQP channel to use.
+	original_headers: dict
+		The headers of the originating message that caused this reply.
+	message: string
+		Message to reply with
+	properties: dict
+		Properties to set on message. This parameter is optional, but if set, at least the following options must be set:
+			content_type: string - what content_type to specify, default is 'text/plain'.
+			delivery_mode: int - what delivery_mode to use. By default message are not persistent, but this can be
+				set by specifying PERSISTENT_MESSAGE .
+	"""
+	if not properties:
+		properties = {}
+	properties['correlation_id'] = original_headers.correlation_id
+
+	publish_message(channel, '', original_headers.reply_to, message, properties)
