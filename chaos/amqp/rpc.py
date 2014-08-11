@@ -263,3 +263,25 @@ class Rpc(Queue):
 					set by specifying PERSISTENT_MESSAGE .
 		"""
 		publish_message(self.channel, self.exchange_name, self.default_routing_key, properties)
+
+	def reply(self, original_headers, message, properties=None):
+		"""
+		Reply to a RPC request. This function will use the default exchange, to directly contact the reply_to queue.
+
+		Parameters
+		----------
+		original_headers: dict
+			The headers of the originating message that caused this reply.
+		message: string
+			Message to reply with
+		properties: dict
+			Properties to set on message. This parameter is optional, but if set, at least the following options must be set:
+				content_type: string - what content_type to specify, default is 'text/plain'.
+				delivery_mode: int - what delivery_mode to use. By default message are not persistent, but this can be
+					set by specifying PERSISTENT_MESSAGE .
+		"""
+		if not properties:
+			properties = {}
+		properties['correlation_id'] = original_headers['correlation_id']
+
+		publish_message(self.channel, "", original_headers['reply_to'], properties)
