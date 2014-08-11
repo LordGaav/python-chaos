@@ -42,7 +42,7 @@ class Queue(object):
 				durable: boolean - should the queue be durable
 				auto_delete: boolean - should we auto delete the queue when we close the connection
 		binds: list of dicts
-			A list of dicts  with the following keys:
+			A list of dicts with the following keys:
 				queue: string - name of the queue to bind
 				exchange: string - name of the exchange to bind
 				routing_key: string - routing key to use for this bind
@@ -53,7 +53,7 @@ class Queue(object):
 		"""
 		self.logger = logging.getLogger(__name__)
 
-		self.logger.debug("Creating connection to {0}:{1}".format(host[0], host[1]))
+		self.logger.info("Creating AMQP connection to {0}:{1}".format(host[0], host[1]))
 		self.credentials = pika.PlainCredentials(credentials[0], credentials[1])
 		self.parameters = pika.ConnectionParameters(host=host[0], port=host[1], credentials=self.credentials)
 		self.connection = pika.BlockingConnection(self.parameters)
@@ -61,13 +61,43 @@ class Queue(object):
 		self.channel.basic_qos(prefetch_count=4)
 
 		self.queue_name = queue['queue']
-		self.logger.debug("Declaring queue {0}".format(self.queue_name))
+		self.logger.info("Declaring queue {0}".format(self.queue_name))
 		self.channel.queue_declare(**queue)
 
 		if binds:
-			for bind in binds:
-				self.logger.debug("Binding queue {0} to exchange {1} with key {2}".format(bind['queue'], bind['exchange'], bind['routing_key']))
+			self._perform_binds(binds)
+
+	def _perform_binds(self, binds):
+		"""
+		Binds queues to exchanges.
+
+		Parameters
+		----------
+		binds: list of dicts
+			a list of dicts with the following keys:
+				queue: string - name of the queue to bind
+				exchange: string - name of the exchange to bind
+				routing_key: string - routing key to use for this bind
+		"""
+		for bind in binds:
+			self.logger.debug("Binding queue {0} to exchange {1} with key {2}".format(bind['queue'], bind['exchange'], bind['routing_key']))
 				self.channel.queue_bind(**bind)
+
+	def _perform_unbinds(self, binds):
+		"""
+		Unbinds queues from exchanges.
+
+		Parameters
+		----------
+		binds: list of dicts
+			A list of dicts with the following keys:
+				queue: string - name of the queue to bind
+				exchange: string - name of the exchange to bind
+				routing_key: string - routing key to use for this bind
+		"""
+		for bind in binds:
+			self.logger.debug("Unbinding queue {0} to exchange {1} with key {2}".format(bind['queue'], bind['exchange'], bind['routing_key']))
+				self.channel.queue_unbind(**bind)
 
 	def close(self):
 		"""
