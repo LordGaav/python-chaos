@@ -88,22 +88,45 @@ class Exchange(object):
 				routing_key: string - what routing_key to use. MUST be set if this was not set during __init__.
 				exchange: string - what exchange to use. MUST be set if this was not set during __init__.
 		"""
-		exchange = self.exchange_name
-		routing_key = self.default_routing_key
-		if properties is None:
-			properties = {}
-		if properties and "routing_key" in properties:
-			routing_key = properties["routing_key"]
-			del(properties["routing_key"])
-		if properties and "exchange" in properties:
-			exchange = properties["exchange"]
-			del(properties["exchange"])
+		publish_message(self.channel, self.exchange_name, self.default_routing_key, properties)
 
-		if not routing_key:
-			raise Exception("routing_key was not specified")
-		if not exchange:
-			raise Exception("exchange was not specified")
+def publish_message(channel, exchange, routing_key, message, properties=None):
+	"""
+	Publish a message to an AMQP exchange.
 
-		self.logger.debug("Publishing message to exchange {0} with routing_key {1}".format(self.exchange_name, routing_key))
+	Parameters
+	----------
+	channel: object
+		Properly initialized AMQP channel to use.
+	exchange: string
+		Exchange to publish to.
+	routing_key: string
+		Routing key to use for this message.
+	message: string
+		Message to publish.
+	properties: dict
+		Properties to set on message. This parameter is optional, but if set, at least the following options must be set:
+			content_type: string - what content_type to specify, default is 'text/plain'.
+			delivery_mode: int - what delivery_mode to use. By default message are not persistent, but this can be
+				set by specifying PERSISTENT_MESSAGE .
+		The following options are also available:
+			routing_key: string - what routing_key to use. Will override the one set in the parameters.
+			exchange: string - what exchange to use. Will override the one set in the parameters.
+	"""
+	if properties is None:
+		properties = {}
+	if properties and "routing_key" in properties:
+		routing_key = properties["routing_key"]
+		del(properties["routing_key"])
+	if properties and "exchange" in properties:
+		exchange = properties["exchange"]
+		del(properties["exchange"])
 
-		self.channel.basic_publish(exchange, routing_key, message, pika.BasicProperties(**properties))
+	if not routing_key:
+		raise Exception("routing_key was not specified")
+	if not exchange:
+		raise Exception("exchange was not specified")
+
+	logging.getLogger(__name__ + ".publish_message").debug("Publishing message to exchange {0} with routing_key {1}".format(exchange, routing_key))
+
+	channel.basic_publish(exchange, routing_key, message, pika.BasicProperties(**properties))
