@@ -24,7 +24,7 @@ from pika.exceptions import ChannelClosed
 
 class Queue(object):
 	""" Holds a connection to an AMQP queue, and methods to consume from it. """
-	def __init__(self, host, credentials, queue, binds=None, exclusive=False, prefetch_count=4):
+	def __init__(self, host, credentials, queue, binds=None, prefetch_count=4):
 		"""
 		Initialize AMQP connection.
 
@@ -81,7 +81,7 @@ class Queue(object):
 		"""
 		for bind in binds:
 			self.logger.debug("Binding queue {0} to exchange {1} with key {2}".format(bind['queue'], bind['exchange'], bind['routing_key']))
-				self.channel.queue_bind(**bind)
+			self.channel.queue_bind(**bind)
 
 	def _perform_unbinds(self, binds):
 		"""
@@ -97,7 +97,7 @@ class Queue(object):
 		"""
 		for bind in binds:
 			self.logger.debug("Unbinding queue {0} to exchange {1} with key {2}".format(bind['queue'], bind['exchange'], bind['routing_key']))
-				self.channel.queue_unbind(**bind)
+			self.channel.queue_unbind(**bind)
 
 	def close(self):
 		"""
@@ -128,6 +128,8 @@ class Queue(object):
 	def consume(self, consumer_callback, exclusive=False, recover=False):
 		"""
 		Initialize consuming of messages from an AMQP queue. Messages will be consumed after start_consuming() is called.
+
+		Calling this method multiple times with exclusive active will result in a pika.exceptions.ChannelClosed Error.
 
 		Parameters
 		----------
