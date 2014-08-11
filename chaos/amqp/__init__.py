@@ -16,5 +16,6 @@
 # License along with this library. If not, see 
 # <http://www.gnu.org/licenses/>.
 
+from rpc import Rpc, rpc_reply
 from exchange import Exchange, NORMAL_MESSAGE, PERSISTENT_MESSAGE
 from queue import Queue
