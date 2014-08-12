@@ -37,5 +37,5 @@ setup(
 	author="Nick Douma",
 	author_email="n.douma@nekoconeko.nl",
 	url="https://github.com/LordGaav/python-chaos",
-	packages=["chaos", "chaos.threading", "chaos.multiprocessing"]
+	packages=["chaos", "chaos.threading", "chaos.multiprocessing", "chaos.amqp"]
 )
