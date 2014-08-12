@@ -226,8 +226,6 @@ class Rpc(Queue):
 		----------
 		exchange: string
 			Exchange to publish to.
-		exchange: string
-			Exchange to publish to.
 		routing_key: string
 			Routing key to use for this message.
 		message: string
