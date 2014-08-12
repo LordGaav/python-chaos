@@ -212,7 +212,7 @@ class Rpc(Queue):
 		del(self.responses[correlation_id])
 		return response
 
-	def request_response(self, exchange, routing_key, message, properties=None, correlation_id=None):
+	def request_response(self, exchange, routing_key, message, properties=None, correlation_id=None, timeout=60):
 		"""
 		This function wraps publish, and sets the properties necessary to allow end-to-end communication using the Rpc paradigm.
 
@@ -239,6 +239,8 @@ class Rpc(Queue):
 					set by specifying PERSISTENT_MESSAGE .
 		correlation_id: string
 			Custom correlation_id. This identifier is subject to the same semantics and logic as register_response().
+		timeout: int
+			How many seconds to wait for a reply. If no reply is received, an IOError is raised. Set to False to wait forever.
 		"""
 		if not properties:
 			properties = {}
@@ -247,9 +249,12 @@ class Rpc(Queue):
 
 		self.publish(exchange, routing_key, message, properties)
 
+		start = int(time.time())
 		self.channel.force_data_events(True)
 		while properties['correlation_id'] not in self.retrieve_available_responses():
 			self.connection.process_data_events()
+			if timeout and (int(time.time()) - start) > timeout:
+				raise IOError("No response received from RPC server")
 
 		return self.retrieve_response(properties['correlation_id'])
 
