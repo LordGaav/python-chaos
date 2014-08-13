@@ -31,7 +31,7 @@ class Rpc(Queue):
 	Additionally, this class can also create a 'normal' Queue, to avoid having to create a separate instance.
 	All of the above is created using a single AMQP channel.
 	"""
-	def __init__(self, host, credentials, identifier=None, exchange=None, auto_delete=True, queue=None, binds=None):
+	def __init__(self, host, credentials, identifier=None, prefetch_count=1, exchange=None, auto_delete=True, queue=None, binds=None):
 		"""
 		Initialize AMQP connection.
 
@@ -45,6 +45,8 @@ class Rpc(Queue):
 			Identifier for this RPC Queue. This parameter determines what the incoming queue will be called, and will also
 			be used as prefix for generated correlation_ids.
 			If left as None, an identifier will be generated.
+		prefetch_count: int
+			Set the prefetch_count of all queues defined by this class.
 		exchange: string
 			If set, this RPC queue will also be bound to the given exchange using the identifier as routing key. If not,
 			we will only be implicitly bound to the default exchange
@@ -80,7 +82,7 @@ class Rpc(Queue):
 		if exchange:
 			binds.append({ "queue": self.rpc_queue_name, "exchange": exchange, "routing_key": self.rpc_queue_name })
 
-		super(Rpc, self).__init__(host, credentials, rpc_queue, None, prefetch_count=1)
+		super(Rpc, self).__init__(host, credentials, rpc_queue, None)
 
 		if queue:
 			self.queue_name = queue['queue']
@@ -91,6 +93,8 @@ class Rpc(Queue):
 
 		if binds:
 			self._perform_binds(binds)
+
+		self.channel.basic_qos(prefetch_count=prefetch_count)
 
 		self.responses = {}
 
