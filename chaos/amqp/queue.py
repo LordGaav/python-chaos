@@ -96,7 +96,7 @@ class Queue(object):
 				routing_key: string - routing key to use for this bind
 		"""
 		for bind in binds:
-			self.logger.debug("Unbinding queue {0} to exchange {1} with key {2}".format(bind['queue'], bind['exchange'], bind['routing_key']))
+			self.logger.debug("Unbinding queue {0} from exchange {1} with key {2}".format(bind['queue'], bind['exchange'], bind['routing_key']))
 			self.channel.queue_unbind(**bind)
 
 	def close(self):
