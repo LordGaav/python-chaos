@@ -21,7 +21,11 @@ Helper functions for working with the Python built-in logging module.
 """
 
 from __future__ import absolute_import
-import logging, logging.handlers, os
+import collections
+import logging
+import logging.handlers
+import os
+
 
 def get_logger(name=None, level=logging.NOTSET, handlers=None):
 	"""
@@ -42,9 +46,11 @@ def get_logger(name=None, level=logging.NOTSET, handlers=None):
 		or be specified as None.
 
 		Supported handlers are:
-		- console: logging to stdout
+		- console: logging to stdout. Optionally specify a custom Handler using 'handler'.
 		- file: logging to a specific file. Specify the file as 'logfile'.
-		- syslog: logging to syslog
+		- syslog: logging to syslog.
+
+		All handlers support custom output formats by specifying a 'format'.
 	"""
 	logger = logging.getLogger(name)
 
@@ -59,27 +65,53 @@ def get_logger(name=None, level=logging.NOTSET, handlers=None):
 		logger.handlers = []
 
 	if "console" in handlers:
-		strm = logging.StreamHandler()
-		fmt = logging.Formatter('%(message)s')
+		if not isinstance(handlers['console'], collections.Iterable):
+			handlers['console'] = {}
+
+		if "handler" in handlers['console']:
+			strm = handlers['console']['handler']
+		else:
+			strm = logging.StreamHandler()
+
+		if "format" in handlers['console']:
+			fmt = logging.Formatter(handlers['console']['format'])
+		else:
+			fmt = logging.Formatter('%(message)s')
+
 		strm.setLevel(level)
 		strm.setFormatter(fmt)
 		logger.addHandler(strm)
 
 	if "file" in handlers:
-		conf = handlers['file']
-		fil = logging.handlers.WatchedFileHandler(conf['logfile'])
-		fil.setLevel(level)
+		if not isinstance(handlers['file'], collections.Iterable):
+			raise TypeError("file handler config must be a dict")
+		if "logfile" not in handlers['file']:
+			raise ValueError("file handler config must contain logfile path name")
 
-		fmt = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+		fil = logging.handlers.WatchedFileHandler(handlers['file']['logfile'])
+
+		if "format" in handlers['file']:
+			fmt = logging.Formatter(handlers['file']['format'])
+		else:
+			fmt = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+		fil.setLevel(level)
 		fil.setFormatter(fmt)
 		logger.addHandler(fil)
 
 	if "syslog" in handlers:
-		sysl = logging.handlers.SysLogHandler(address='/dev/log', facility=logging.handlers.SysLogHandler.LOG_SYSLOG)
-		sysl.setLevel(level)
+		if not isinstance(handlers['syslog'], collections.Iterable):
+			handlers['syslog'] = {}
 
-		formatter = logging.Formatter('%(name)s[' + str(os.getpid()) + '] %(levelname)-8s: %(message)s')
-		sysl.setFormatter(formatter)
+		sysl = logging.handlers.SysLogHandler(address='/dev/log', facility=logging.handlers.SysLogHandler.LOG_SYSLOG)
+
+		if "format" in handlers['syslog']:
+			fmt = logging.Formatter(handlers['syslog']['format'])
+		else:
+			fmt = logging.Formatter('%(name)s[' + str(os.getpid()) + '] %(levelname)-8s: %(message)s')
+
+		sysl.setLevel(level)
+		sysl.setFormatter(fmt)
 		logger.addHandler(sysl)
 
 	return logger
