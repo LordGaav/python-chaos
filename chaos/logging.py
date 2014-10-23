@@ -40,7 +40,8 @@ def get_logger(name=None, level=logging.NOTSET, handlers=None):
 	name: string
 		Name of the Logger to create. Specify None to designate the root Logger.
 	level: string
-		One of: CRITICAL, ERROR, WARNING, INFO or DEBUG.
+		One of: CRITICAL, ERROR, WARNING, INFO or DEBUG. Alternatively, use the `logging`
+		constants: logging.CRITICAL, logging.ERROR, etc.
 	handlers: dict
 		Keys specifies the handler, value may optionally contain configuration,
 		or be specified as None.
@@ -108,7 +109,7 @@ def get_logger(name=None, level=logging.NOTSET, handlers=None):
 		if "format" in handlers['syslog']:
 			fmt = logging.Formatter(handlers['syslog']['format'])
 		else:
-			fmt = logging.Formatter('%(name)s[' + str(os.getpid()) + '] %(levelname)-8s: %(message)s')
+			fmt = logging.Formatter('%(name)s[%(process)s] %(levelname)-8s: %(message)s')
 
 		sysl.setLevel(level)
 		sysl.setFormatter(fmt)
