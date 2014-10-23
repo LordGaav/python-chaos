@@ -18,10 +18,9 @@
 # <http://www.gnu.org/licenses/>.
 
 from os.path import join, dirname
-from distutils.core import setup
+from setuptools import setup
+from chaos.version import NAME, VERSION
 
-NAME = "chaos"
-VERSION = "0.1"
 DESCRIPTION = "Assorted libraries and subroutines"
 
 readme = open(join(dirname(__file__), 'README.md'))
@@ -37,5 +36,10 @@ setup(
 	author="Nick Douma",
 	author_email="n.douma@nekoconeko.nl",
 	url="https://github.com/LordGaav/python-chaos",
-	packages=["chaos", "chaos.threading", "chaos.multiprocessing", "chaos.amqp"]
+	packages=["chaos", "chaos.threading", "chaos.multiprocessing", "chaos.amqp"],
+	install_requires=[
+		"configobj",
+		"gdbm>=2.7.3",
+		"pika>=0.9.5"
+	]
 )
