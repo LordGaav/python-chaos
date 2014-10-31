@@ -1,3 +1,39 @@
+chaos (0.2) RELEASE; urgency=low
+
+  Added SimpleCli, SimpleDb and AMQP helper classes
+
+  * Add cli.py
+  * Add call_system
+  * Add support for environment variables to SimpleCliTool
+  * Allow stderr to be redirected to stdout
+  * Add SimpleDb
+  * Properly instantiate SimpleCliTool before using it
+  * Fix text issues
+  * Add support for customizing log output and formats
+  * Add Exchange and Queue AMQP classes
+  * Add first implementation of AMQP RPC Queue
+  * Add _perform_binds and _perform_unbinds
+  * Refactor message publishing logic outside of Exchange, for 
+    easy reuse elsewhere.
+  * Second implementation of RpcQueue, renamed to Rpc and attempting 
+    to fill all requirements.
+  * Add reply
+  * Allow publishing to the default exchange
+  * Fix documentation, indentation and signature issues in Queue
+  * Expose rpc_reply function
+  * Make Rpc work
+  * Add support for timeout parameter in request_response
+  * Remove duplicate mention of exchange parameter
+  * Add AMQP package to setup.py
+  * Update Makefile, remove support for saucy
+  * Fix prefetch_count accidentially being overwritten if defining a 
+    general purpose queue.
+  * Fix message
+  * Fix small text issues
+  * Bump version, update changelog
+
+ -- Nick Douma <n.douma@nekoconeko.nl>  Thu, 23 Oct 2014 11:46:06 +0200
+
 chaos (0.1.1) RELEASE; urgency=low
 
   * Suppress already seen arguments from default configuration
