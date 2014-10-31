@@ -8,6 +8,8 @@ Dependencies
 
 * python >= 2.7
 * python-configobj
+* python-gdbm >= 2.7.3
+* python-pika >= 0.9.5
 
 Building
 ========

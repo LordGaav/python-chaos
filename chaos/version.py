@@ -17,5 +17,5 @@
 # <http://www.gnu.org/licenses/>.
 
 NAME = "python-chaos"
-VERSION = "0.1.1"
-BUILD = "5fd05d7"
+VERSION = "0.2"
+BUILD = "79eefc2"
