@@ -8,8 +8,8 @@ Dependencies
 
 * python >= 2.7
 * python-configobj
-* python-gdbm >= 2.7.3
-* python-pika >= 0.9.5
+* python-gdbm >= 2.7.3 (only if using SimpleDb)
+* python-pika >= 0.9.5 (only if using AMQP stuff)
 
 Building
 ========
