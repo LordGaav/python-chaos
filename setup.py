@@ -21,22 +21,34 @@ from os.path import join, dirname
 from setuptools import setup
 from chaos.version import NAME, VERSION
 
-DESCRIPTION = "Assorted libraries and subroutines"
-
-readme = open(join(dirname(__file__), 'README.md'))
-long_description = readme.read().strip()
-readme.close()
+DESCRIPTION = "chaos Python modules: Assorted libraries and subroutines"
+LONG_DESCRIPTION = "A set of libraries and subroutines I commonly use in my python projects."
 
 setup(
 	name=NAME,
 	version=VERSION,
 	description=DESCRIPTION,
-	long_description=long_description,
-	license="LGPL3",
+	long_description=LONG_DESCRIPTION,
+	license="GNU LGPLv3+",
 	author="Nick Douma",
 	author_email="n.douma@nekoconeko.nl",
 	url="https://github.com/LordGaav/python-chaos",
-	packages=["chaos", "chaos.threading", "chaos.multiprocessing", "chaos.amqp"],
+	platforms=["any"],
+	classifiers=[
+		"Development Status :: 4 - Beta",
+		"Intended Audience :: Developers",
+		"License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
+		"Operating System :: Unix",
+		"Programming Language :: Python :: 2 :: Only",
+		"Programming Language :: Python :: 2.7",
+		"Topic :: Software Development :: Libraries :: Python Modules"
+	],
+	packages=[
+		"chaos",
+		"chaos.amqp",
+		"chaos.multiprocessing",
+		"chaos.threading"
+	],
 	install_requires=[
 		"configobj",
 		"pika>=0.9.5"
