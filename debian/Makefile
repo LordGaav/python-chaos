@@ -16,6 +16,8 @@ clean:
 	rm -vfR build
 	rm -vfR debian/control
 	rm -vfR debian/$(PROJECT)*
+	rm -vfR dist
+	rm -vfR *.egg-info
 
 changelog:
 	git dch --ignore-branch --snapshot --auto --git-author

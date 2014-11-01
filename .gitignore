@@ -3,6 +3,7 @@
 
 ## Working directories
 /dist
+/*.egg-info
 
 ## Ant generated files
 /doc/*.1
