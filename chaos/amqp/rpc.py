@@ -21,7 +21,10 @@
 from __future__ import absolute_import
 from .exchange import publish_message
 from .queue import Queue
-import logging, time
+import logging
+import time
+import uuid
+
 
 class Rpc(Queue):
 	"""
@@ -42,8 +45,7 @@ class Rpc(Queue):
 		credentials: tuple
 			Must contain username and password for this connection
 		identifier: string
-			Identifier for this RPC Queue. This parameter determines what the incoming queue will be called, and will also
-			be used as prefix for generated correlation_ids.
+			Identifier for this RPC Queue. This parameter determines what the incoming queue will be called.
 			If left as None, an identifier will be generated.
 		prefetch_count: int
 			Set the prefetch_count of all queues defined by this class.
@@ -161,8 +163,11 @@ class Rpc(Queue):
 	def register_response(self, correlation_id=None):
 		"""
 		Register the receiving of a RPC response. Will return the given correlation_id after registering, or if correlation_id is None, will
-		generate a correlation_id and return it after registering. If the given correlation_id has already been used, an unique string will
-		be appended to it.
+		generate a correlation_id and return it after registering. If the given correlation_id has already been used, an KeyError will be
+		raised.
+
+		UUID version 1 will be used when generating correlation_ids. Depending on the underlying system and implementation, this will guarantee
+		that generated values are unique between workers. At least CPython guarantees this behaviour.
 
 		Parameters
 		----------
@@ -171,16 +176,13 @@ class Rpc(Queue):
 
 		"""
 		if not correlation_id:
-			correlation_id = "{0}_{1}".format(self.rpc_queue_name, int(time.time()))
+			correlation_id = str(uuid.uuid1())
 
-		uniq = 1
-		uniq_correlation_id = correlation_id
-		while uniq_correlation_id in self.responses:
-			uniq_correlation_id = "{0}_{1}".format(correlation_id, uniq)
-			uniq += 1
+		if correlation_id in self.responses:
+			raise KeyError("Correlation_id {0} was already registered, and therefor not unique.".format(correlation_id))
 
-		self.responses[uniq_correlation_id] = None
-		return uniq_correlation_id
+		self.responses[correlation_id] = None
+		return correlation_id
 
 	def retrieve_available_responses(self):
 		"""
@@ -246,7 +248,7 @@ class Rpc(Queue):
 		"""
 		if not properties:
 			properties = {}
-		properties['correlation_id'] = self.register_response()
+		properties['correlation_id'] = self.register_response(correlation_id)
 		properties['reply_to'] = self.rpc_queue_name
 
 		self.publish(exchange, routing_key, message, properties)
@@ -297,6 +299,7 @@ class Rpc(Queue):
 					set by specifying PERSISTENT_MESSAGE .
 		"""
 		rpc_reply(self.channel, original_headers, message, properties)
+
 
 def rpc_reply(channel, original_headers, message, properties=None):
 	"""
