@@ -85,7 +85,7 @@ class Rpc(Queue):
 			"auto_delete": auto_delete
 		}
 		if exchange:
-			binds.append({ "queue": self.rpc_queue_name, "exchange": exchange, "routing_key": self.rpc_queue_name })
+			binds.append({"queue": self.rpc_queue_name, "exchange": exchange, "routing_key": self.rpc_queue_name})
 
 		super(Rpc, self).__init__(host, credentials, rpc_queue, None)
 
@@ -194,7 +194,7 @@ class Rpc(Queue):
 		"""
 		Retrieve a list of all available responses. Will return a list of correlation_ids.
 		"""
-		return [ k for (k,v) in self.responses.iteritems() if v ]
+		return [k for (k, v) in self.responses.iteritems() if v]
 
 	def retrieve_response(self, correlation_id):
 		"""
@@ -224,15 +224,18 @@ class Rpc(Queue):
 		del(self.responses[correlation_id])
 		return response
 
-	def request_response(self, exchange, routing_key, message, properties=None, correlation_id=None, timeout=60):
+	def request_response(self, exchange, routing_key, message, properties=None, correlation_id=None, timeout=6):
 		"""
 		This function wraps publish, and sets the properties necessary to allow end-to-end communication using the Rpc paradigm.
 
-		This function assumes that the named exchange and routing_key combination will result in a AMQP server to pickup the request, and
+		This function assumes that the named exchange and routing_key combination will result in a AMQP queue to pickup the request, and
 		reply using another AMQP message. To achieve this, the following properties are set, along with any custom properties:
 		* correlation_id: a correlation_id is generated using register_response. It is assumed that the responding service will also provide
 			the same id in the response.
 		* reply_to: this is set to the internal RPC queue name, so we can pickup responses.
+
+		The mandatory bit will be set on the message as a mechanism to detect if the message was delivered to a queue.
+		This is to avoid needlessly waiting on a reply, when the message wasn't delivered in the first place.
 
 		Parameters
 		----------
@@ -258,18 +261,19 @@ class Rpc(Queue):
 		properties['correlation_id'] = self.register_response(correlation_id)
 		properties['reply_to'] = self.rpc_queue_name
 
-		self.publish(exchange, routing_key, message, properties)
+		if not self.publish(exchange, routing_key, message, properties, mandatory=True):
+			raise MessageNotDelivered("Message was not delivered to a queue")
 
 		start = int(time.time())
 		self.channel.force_data_events(True)
 		while properties['correlation_id'] not in self.retrieve_available_responses():
 			self.connection.process_data_events()
 			if timeout and (int(time.time()) - start) > timeout:
-				raise IOError("No response received from RPC server")
+				raise MessageDeliveryTimeout("No response received from RPC server within specified period")
 
 		return self.retrieve_response(properties['correlation_id'])
 
-	def publish(self, exchange, routing_key, message, properties=None):
+	def publish(self, exchange, routing_key, message, properties=None, mandatory=False):
 		"""
 		Publish a message to an AMQP exchange.
 
@@ -286,8 +290,10 @@ class Rpc(Queue):
 				content_type: string - what content_type to specify, default is 'text/plain'.
 				delivery_mode: int - what delivery_mode to use. By default message are not persistent, but this can be
 					set by specifying PERSISTENT_MESSAGE .
+		mandatory: boolean
+			If set to True, the mandatory bit will be set on the published message.
 		"""
-		publish_message(self.channel, exchange, routing_key, message, properties)
+		return publish_message(self.channel, exchange, routing_key, message, properties, mandatory)
 
 	def reply(self, original_headers, message, properties=None):
 		"""
