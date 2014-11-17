@@ -20,6 +20,7 @@
 
 from __future__ import absolute_import
 from .exchange import publish_message
+from .exceptions import MessageNotDelivered, MessageDeliveryTimeout
 from .queue import Queue
 import logging
 import time
@@ -244,7 +245,8 @@ class Rpc(Queue):
 		correlation_id: string
 			Custom correlation_id. This identifier is subject to the same semantics and logic as register_response().
 		timeout: int
-			How many seconds to wait for a reply. If no reply is received, an IOError is raised. Set to False to wait forever.
+			How many seconds to wait for a reply. If no reply is received, an MessageDeliveryTimeout is raised. Set to
+			False to wait forever.
 		"""
 		if not properties:
 			properties = {}

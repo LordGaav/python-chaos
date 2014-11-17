@@ -16,7 +16,16 @@
 # License along with this library. If not, see
 # <http://www.gnu.org/licenses/>.
 
-from rpc import Rpc, rpc_reply
-from exchange import Exchange, NORMAL_MESSAGE, PERSISTENT_MESSAGE
-from queue import Queue
-from exceptions import MessageNotDelivered, MessageDeliveryTimeout
+
+class MessageNotDelivered(IOError):
+    """
+    Exception to be raised when an AMQP message could not be queued.
+    """
+    pass
+
+
+class MessageDeliveryTimeout(IOError):
+    """
+    Exception to be raised when an AMQP message could not be delivered in the specified period.
+    """
+    pass
