@@ -150,9 +150,9 @@ def publish_message(channel, exchange, routing_key, message, properties=None, ma
 		del(properties["exchange"])
 
 	if not routing_key:
-		raise Exception("routing_key was not specified")
+		raise ValueError("routing_key was not specified")
 	if not exchange and not exchange == "":
-		raise Exception("exchange was not specified")
+		raise ValueError("exchange was not specified")
 
 	logging.getLogger(__name__ + ".publish_message").debug("Publishing message to exchange {0} with routing_key {1}".format(exchange, routing_key))
 
