@@ -35,7 +35,7 @@ class Rpc(Queue):
 	Additionally, this class can also create a 'normal' Queue, to avoid having to create a separate instance.
 	All of the above is created using a single AMQP channel.
 	"""
-	def __init__(self, host, credentials, identifier=None, prefetch_count=1, exchange=None, auto_delete=True, queue=None, binds=None):
+	def __init__(self, host, credentials, identifier=None, prefetch_count=1, exchange=None, auto_delete=True, queue=None, binds=None, confirm_delivery=False):
 		"""
 		Initialize AMQP connection.
 
@@ -69,6 +69,8 @@ class Rpc(Queue):
 				queue: string - name of the queue to bind
 				exchange: string - name of the exchange to bind
 				routing_key: string - routing key to use for this bind
+		confirm_delivery: boolean
+			If True, basic.Confirm will be set on the current channel.
 		"""
 		self.logger = logging.getLogger(__name__)
 
@@ -98,6 +100,9 @@ class Rpc(Queue):
 			self._perform_binds(binds)
 
 		self.channel.basic_qos(prefetch_count=prefetch_count)
+
+		if confirm_delivery:
+			self.channel.confirm_delivery()
 
 		self.responses = {}
 
