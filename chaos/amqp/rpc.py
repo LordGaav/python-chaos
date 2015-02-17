@@ -262,6 +262,7 @@ class Rpc(Queue):
 		properties['reply_to'] = self.rpc_queue_name
 
 		if not self.publish(exchange, routing_key, message, properties, mandatory=True):
+			self.retrieve_response(properties['correlation_id'])
 			raise MessageNotDelivered("Message was not delivered to a queue")
 
 		start = int(time.time())
@@ -269,6 +270,7 @@ class Rpc(Queue):
 		while properties['correlation_id'] not in self.retrieve_available_responses():
 			self.connection.process_data_events()
 			if timeout and (int(time.time()) - start) > timeout:
+				self.retrieve_response(properties['correlation_id'])
 				raise MessageDeliveryTimeout("No response received from RPC server within specified period")
 
 		return self.retrieve_response(properties['correlation_id'])
