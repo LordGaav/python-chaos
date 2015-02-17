@@ -1,3 +1,17 @@
+chaos (0.2.2) RELEASE; urgency=medium
+
+  * Use UUID's instead of poorly generated unique values for correlation_ids.
+  * Add separate Exceptions for MessageNotDelivered and MessageDeliveryTimeout
+  * Add support for Channel Confirm mode and mandatory bit.
+  * Use mandatory bit to detect if RPC request is delivered in the first place.
+  * Use more specific Error type
+  * Add missing message parameter to publish_message call
+  * Properly access self.envvars
+  * Avoid potential memory leak by unregistering correlation_ids upon error
+  * Bump version, update changelog
+
+ -- Nick Douma <n.douma@nekoconeko.nl>  Tue, 17 Feb 2015 17:47:33 +0100
+
 chaos (0.2.1) RELEASE; urgency=medium
 
   * Remove gdbm setup.py requirement.

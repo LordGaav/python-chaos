@@ -20,10 +20,10 @@
 
 import logging
 import pika
-from pika.exceptions import ChannelClosed
 
 NORMAL_MESSAGE = 1
 PERSISTENT_MESSAGE = 2
+
 
 class Exchange(object):
 	""" Holds a connection to an AMQP exchange, and methods to publish to it. """
@@ -71,7 +71,7 @@ class Exchange(object):
 		self.logger.debug("Closing AMQP connection")
 		self.connection.close()
 
-	def publish(self, message, properties=None):
+	def publish(self, message, properties=None, mandatory=False):
 		"""
 		Publish a message to an AMQP exchange.
 
@@ -87,10 +87,24 @@ class Exchange(object):
 			The following options are also available:
 				routing_key: string - what routing_key to use. MUST be set if this was not set during __init__.
 				exchange: string - what exchange to use. MUST be set if this was not set during __init__.
-		"""
-		publish_message(self.channel, self.exchange_name, self.default_routing_key, properties)
+		mandatory: boolean
+			If set to True, the mandatory bit will be set on the published message.
 
-def publish_message(channel, exchange, routing_key, message, properties=None):
+		Returns
+		-------
+		Depending on the mode of the Channel, the return value can signify different things:
+
+		basic_Confirm is active:
+			True means that the message has been delivered to a queue, False means it hasn't.
+		mandatory bit was set on message:
+			True means that the message has been delivered to a consumer, False means that it has been returned.
+		No special bit or mode has been set:
+			None is returned.
+		"""
+		return publish_message(self.channel, self.exchange_name, self.default_routing_key, message, properties, mandatory)
+
+
+def publish_message(channel, exchange, routing_key, message, properties=None, mandatory=False):
 	"""
 	Publish a message to an AMQP exchange.
 
@@ -112,6 +126,19 @@ def publish_message(channel, exchange, routing_key, message, properties=None):
 		The following options are also available:
 			routing_key: string - what routing_key to use. Will override the one set in the parameters.
 			exchange: string - what exchange to use. Will override the one set in the parameters.
+	mandatory: boolean
+		If set to True, the mandatory bit will be set on the published message.
+
+	Returns
+	-------
+	Depending on the mode of the Channel, the return value can signify different things:
+
+	basic_Confirm is active:
+		True means that the message has been delivered to a queue, False means it hasn't.
+	mandatory bit was set on message:
+		True means that the message has been delivered to a consumer, False means that it has been returned.
+	No special bit or mode has been set:
+		None is returned.
 	"""
 	if properties is None:
 		properties = {}
@@ -123,10 +150,10 @@ def publish_message(channel, exchange, routing_key, message, properties=None):
 		del(properties["exchange"])
 
 	if not routing_key:
-		raise Exception("routing_key was not specified")
+		raise ValueError("routing_key was not specified")
 	if not exchange and not exchange == "":
-		raise Exception("exchange was not specified")
+		raise ValueError("exchange was not specified")
 
 	logging.getLogger(__name__ + ".publish_message").debug("Publishing message to exchange {0} with routing_key {1}".format(exchange, routing_key))
 
-	channel.basic_publish(exchange, routing_key, message, pika.BasicProperties(**properties))
+	return channel.basic_publish(exchange, routing_key, message, pika.BasicProperties(**properties), mandatory)
