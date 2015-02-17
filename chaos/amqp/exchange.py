@@ -101,7 +101,7 @@ class Exchange(object):
 		No special bit or mode has been set:
 			None is returned.
 		"""
-		return publish_message(self.channel, self.exchange_name, self.default_routing_key, properties, mandatory=False)
+		return publish_message(self.channel, self.exchange_name, self.default_routing_key, message, properties, mandatory)
 
 
 def publish_message(channel, exchange, routing_key, message, properties=None, mandatory=False):
