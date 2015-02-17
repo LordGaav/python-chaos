@@ -47,7 +47,7 @@ class SimpleCliTool(object):
 		Delete a custom environment value. This will raise an exception if the
 		variable does not exist.
 		"""
-		del(envvars[var])
+		del(self.envvars[var])
 
 	def get_env(self):
 		"""
