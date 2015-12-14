@@ -1,3 +1,13 @@
+chaos (0.2.3) RELEASE; urgency=medium
+
+  Fix compatability with recent versions of Pika (>= 0.10)
+
+  * Update Makefile to generate proper version numbers
+  * Add compatability with newer versions of Pika
+  * Bump version, update changelog
+
+ -- Nick Douma <n.douma@nekoconeko.nl>  Mon, 14 Dec 2015 13:01:47 +0100
+
 chaos (0.2.2) RELEASE; urgency=medium
 
   * Use UUID's instead of poorly generated unique values for correlation_ids.
