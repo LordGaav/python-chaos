@@ -266,7 +266,11 @@ class Rpc(Queue):
 			raise MessageNotDelivered("Message was not delivered to a queue")
 
 		start = int(time.time())
-		self.channel.force_data_events(True)
+
+		## Newer versions of pika (>v0.10) don't have a force_data_events any more
+		if hasattr(self.channel, "force_data_events"):
+			self.channel.force_data_events(True)
+
 		while properties['correlation_id'] not in self.retrieve_available_responses():
 			self.connection.process_data_events()
 			if timeout and (int(time.time()) - start) > timeout:
