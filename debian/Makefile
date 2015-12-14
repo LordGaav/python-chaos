@@ -54,7 +54,7 @@ source_no_sign: clean generate_all
 	dpkg-buildpackage -S -us
 
 upload_to_ppa:
-	dput ppa:lordgaav/$(PROJECT) "$(CHANGES)"
+	dput ppa:lordgaav/python-$(PROJECT) "$(CHANGES)"
 
 pbuild_create:
 	pbuilder-dist "$(DIST)" create
