@@ -33,6 +33,7 @@ setup(
 	author="Nick Douma",
 	author_email="n.douma@nekoconeko.nl",
 	url="https://github.com/LordGaav/python-chaos",
+	download_url="https://github.com/LordGaav/python-chaos/tarball/" + str(VERSION),
 	platforms=["any"],
 	classifiers=[
 		"Development Status :: 4 - Beta",

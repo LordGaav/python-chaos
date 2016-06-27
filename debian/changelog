@@ -1,6 +1,19 @@
+chaos (0.2.4) RELEASE; urgency=medium
+
+  Update build metadata and add Ubuntu Xenial support.
+
+  * Fix upload_to_ppa build target
+  * Add upload_to_pypi build target
+  * Add download_url to setup.py
+  * Add support for Ubuntu Xenial
+  * Fix spelling error in changelog
+  * Bump version, update changelog
+
+ -- Nick Douma <n.douma@nekoconeko.nl>  Mon, 27 Jun 2016 13:06:44 +0200
+
 chaos (0.2.3) RELEASE; urgency=medium
 
-  Fix compatability with recent versions of Pika (>= 0.10)
+  Fix compatibility with recent versions of Pika (>= 0.10)
 
   * Update Makefile to generate proper version numbers
   * Add compatability with newer versions of Pika
