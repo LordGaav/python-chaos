@@ -1,6 +1,6 @@
 chaos (0.2.3) RELEASE; urgency=medium
 
-  Fix compatability with recent versions of Pika (>= 0.10)
+  Fix compatibility with recent versions of Pika (>= 0.10)
 
   * Update Makefile to generate proper version numbers
   * Add compatability with newer versions of Pika
