@@ -17,5 +17,5 @@
 # <http://www.gnu.org/licenses/>.
 
 NAME = "chaos"
-VERSION = "0.2.4"
-BUILD = "3abe63e"
+VERSION = "0.2.5"
+BUILD = "55d480a"
