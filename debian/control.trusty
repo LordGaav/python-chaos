@@ -1,1 +1,6 @@
-control.precise
+Package: python-chaos
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}, python-configobj, python-gdbm (>=2.7.3)
+Description: Assorted libraries and subroutines
+ .
+ A set of libraries and subroutines I commonly use in my python projects.
