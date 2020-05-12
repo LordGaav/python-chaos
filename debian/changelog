@@ -1,3 +1,12 @@
+chaos (0.2.6) RELEASE; urgency=medium
+
+  Update supported Ubuntu versions.
+
+  * Add Ubuntu Focal support
+  * Bump version, update changelog
+
+ -- Nick Douma <n.douma@nekoconeko.nl>  Tue, 12 May 2020 14:55:16 +0200
+
 chaos (0.2.5) RELEASE; urgency=medium
 
   Update supported Ubuntu versions.
